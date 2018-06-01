@@ -1,19 +1,20 @@
 #include<time.h>
 #include<conio.h>
 #include<windows.h>
+#include<easyx.h>
 #include<stdio.h>
-
+#pragma comment(lib,"Winmm.lib")
 
 struct snakeNode
 {
 	int x;
 	int y;
-	int role;				//role ��ʾ�����ڵ�Ľ�ɫ 
+	int role;				//role 表示各个节点的角色 
 };
 /*
-role		1 ������ͷ
-role		2 ��������
-role		3 ������β
+role		1 代表蛇头
+role		2 代表蛇身
+role		3 代表蛇尾
 */
 struct snake
 {
@@ -30,10 +31,10 @@ struct
 }food;
 
 
-snake Jarry;					//�ߵ�����Jarry
+snake Jarry;					//蛇的名字Jarry
 int a[4] = { 2,4,6,8 };
 
-int moveDirection = 6;				//��ʼ���ƶ�����
+int moveDirection = 6;				//初始化移动方向
 
 static int score = 0;   
 int speed = 200;
@@ -41,18 +42,18 @@ int speed = 200;
 
 
 void gameOver();
-void SetColor(unsigned short ForeColor, unsigned short BackGroundColor)				//���ñ���ɫ �Լ�������ɫ
+void SetColor(unsigned short ForeColor, unsigned short BackGroundColor)				//设置背景色 以及字体颜色
 {
 
 	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hCon, (ForeColor % 16) | (BackGroundColor % 16 * 16));
 }
 
-void setcoord(int x, int y)					//���ù��λ��
+void setcoord(int x, int y)					//设置光标位置
 {
-	HANDLE consolehwnd;					//��þ��
-	consolehwnd = GetStdHandle(STD_OUTPUT_HANDLE);//ʵ�������
-	SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE | FOREGROUND_INTENSITY);//����
+	HANDLE consolehwnd;					//获得句柄
+	consolehwnd = GetStdHandle(STD_OUTPUT_HANDLE);//实例化句柄
+	SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE | FOREGROUND_INTENSITY);//设置
 	COORD coord;
 	coord.X = x;
 	coord.Y = y;
@@ -64,7 +65,7 @@ void setcoord(int x, int y)					//���ù��λ��
 	SetConsoleCursorInfo(handle, &CursorInfo);
 
 }
-void showFood()				// ʳ���λ��
+void showFood()				// 食物的位置
 {
 
 	int isOk = 1;
@@ -77,7 +78,7 @@ void showFood()				// ʳ���λ��
 			srand(unsigned(time(NULL)));
 			food.food_X = rand() % 45 + 2;
 			while (food.food_X % 2 != 1)
-				food.food_X = rand() % 45 + 2;			//保证食物的X坐标为奇数，这样蛇才能吃�?
+				food.food_X = rand() % 45 + 2;
 
 			food.food_Y = rand() % 28 + 1;
 			for (i = 0; i < Jarry.length; i++)
@@ -93,27 +94,28 @@ void showFood()				// ʳ���λ��
 
 		setcoord(food.food_X, food.food_Y);
 		SetColor(rand() % 6 + 1, 0);
-		printf("��");
+		printf("●");
 		food.flag = 1;
 
 	}
-	setcoord(food.food_X, food.food_Y);		//重复画食�?防止被覆�?
+	setcoord(food.food_X, food.food_Y);		
 	SetColor(rand() % 6 + 1, 0);
-	printf("��");
+	printf("●");
 }
 void foodState()
 {
-	if (food.food_X == Jarry.num[0].x && food.food_Y == Jarry.num[0].y)			//判断食物是否被吃
+	if (food.food_X == Jarry.num[0].x && food.food_Y == Jarry.num[0].y)			
 	{
-		food.flag = 0;				//使食物存在状态为0
+
+		food.flag = 0;	
 	}
 }
-void Wel()						//欢迎界面		
+void Wel()				
 {
 	setcoord(20, 10);
-	printf("1 : ��ʼ��Ϸ");
+	printf("1 : 开始游戏");
 	setcoord(20, 12);
-	printf("2 : �˳���Ϸ");
+	printf("2 : 退出游戏");
 	char  ch = ' ';
 
 
@@ -129,15 +131,16 @@ void Wel()						//欢迎界面
 				exit(0);
 		}
 
-		fflush(stdin);   /*清空缓冲区，也可以使用rewind(stdin);*/
+		fflush(stdin);
 	}
 	setcoord(20, 10);
 	printf("          ");
 	setcoord(20, 12);
 	printf("          ");
 }
-void showBorder()			//打印设置边框
+void showBorder()		
 {
+
 	int x, i, j;
 	int y = 0;
 	for (i = 0; i < 50; i += 2)
@@ -146,7 +149,7 @@ void showBorder()			//打印设置边框
 		x = i;
 		setcoord(x, y);
 		SetColor(rand() % 6 + 1, 0);
-		printf("��");
+		printf("●");
 	}
 	x = 0;
 	for (i = 0; i < 30; i++)
@@ -155,12 +158,12 @@ void showBorder()			//打印设置边框
 		y = i;
 		setcoord(x, y);
 		SetColor(rand() % 6 + 1, 0);
-		printf("��");
+		printf("●");
 	}
 	for (i = 0; i < 48; i += 2)
 	{
 		SetColor(rand() % 6 + 1, 0);
-		printf("��");
+		printf("●");
 	}
 	x += 48;
 	y = 28;
@@ -170,19 +173,19 @@ void showBorder()			//打印设置边框
 		y = j;
 		setcoord(x, y);
 		SetColor(rand() % 6 + 1, 0);
-		printf("��");
+		printf("●");
 	}
 
 
 }
 
-void setSnakePos()							//蛇移动的原理
+void setSnakePos()				
 {
 	int old_snake_x;
-	int old_snake_y;				//记录蛇头的位�?
+	int old_snake_y;			
 
-	int flag = 0;				//改变标志位使 一次循坏只更改一次尾�?
-	if (moveDirection == 2)				//向下移动
+	int flag = 0;				
+	if (moveDirection == 2)		
 	{
 
 		for (int i = 0; i < Jarry.length; i++)
@@ -194,7 +197,7 @@ void setSnakePos()							//蛇移动的原理
 				printf(" ");
 				old_snake_x = Jarry.num[0].x;
 				old_snake_y = Jarry.num[0].y;
-				Jarry.num[0].y += 1;			//移动蛇头
+				Jarry.num[0].y += 1;			
 			}
 			if (Jarry.num[i].role == 3 && flag == 0)
 			{
@@ -202,56 +205,55 @@ void setSnakePos()							//蛇移动的原理
 				setcoord(Jarry.num[i].x, Jarry.num[i].y);
 				printf(" ");
 
-				Jarry.num[i].role = 2;				//将其设置为靠近蛇身的位置
+				Jarry.num[i].role = 2;			
 				if (i - 1 == 0)
 				{
 					Jarry.num[Jarry.length - 1].role = 3;
 				}
-				Jarry.num[i - 1].role = 3;			//比如 1 2 3 4        将蛇头位置变�?然后将最后一位的节点补上去实现移�?1 4 2 3
+				Jarry.num[i - 1].role = 3;			
 
 				Jarry.num[i].x = old_snake_x;
 				Jarry.num[i].y = old_snake_y;
 
-				flag = 1;							//改变标志位使 一次循坏只更改一次尾�?
+				flag = 1;							
 
 			}
 		}
 	}
-	if (moveDirection == 4)				//向左移动
+	if (moveDirection == 4)			
 	{
 
 		for (int i = 0; i < Jarry.length; i++)
 		{
-			if (i == 0)				//移动蛇头
+			if (i == 0)			
 			{
 
 				setcoord(Jarry.num[0].x, Jarry.num[0].y);
-				printf(" ");			//消除原来位置的图�?
+				printf(" ");			
 
 
 				old_snake_x = Jarry.num[0].x;
-				old_snake_y = Jarry.num[0].y;		//保存蛇头位置
-				Jarry.num[0].x -= 2;			//移动蛇头
+				old_snake_y = Jarry.num[0].y;		
+				Jarry.num[0].x -= 2;			
 			}
 			if (Jarry.num[i].role == 3 && flag == 0)
 			{
 
 				setcoord(Jarry.num[i].x, Jarry.num[i].y);
-				printf(" ");					//消除蛇尾的位�?
+				printf(" ");				
 
-				Jarry.num[i].role = 2;				//使当前蛇尾的身份变成蛇身
+				Jarry.num[i].role = 2;			
 
-				if (i - 1 == 0)						//如果当前蛇尾在蛇头后面，则重置到尾部
+				if (i - 1 == 0)						
 				{
 					Jarry.num[Jarry.length - 1].role = 3;
 				}
-				Jarry.num[i - 1].role = 3;			//比如 1 2 3 4        将蛇头位置变�?然后将最后一位的节点补上去实现移�?1 4 2 3
+				Jarry.num[i - 1].role = 3;		
 
 				Jarry.num[i].x = old_snake_x;
-				Jarry.num[i].y = old_snake_y;					//使蛇尾的位置 �?之前蛇身
+				Jarry.num[i].y = old_snake_y;					
 
-				flag = 1;							//改变标志位使 一次循坏只更改一次尾�?
-
+				flag = 1;							
 			}
 		}
 
@@ -267,7 +269,7 @@ void setSnakePos()							//蛇移动的原理
 				printf(" ");
 				old_snake_x = Jarry.num[0].x;
 				old_snake_y = Jarry.num[0].y;
-				Jarry.num[0].y -= 1;			//移动蛇头
+				Jarry.num[0].y -= 1;		
 			}
 			if (Jarry.num[i].role == 3 && flag == 0)
 			{
@@ -280,13 +282,11 @@ void setSnakePos()							//蛇移动的原理
 				{
 					Jarry.num[Jarry.length - 1].role = 3;
 				}
-				Jarry.num[i - 1].role = 3;			//比如 1 2 3 4        将蛇头位置变�?然后将最后一位的节点补上去实现移�?1 4 2 3
-
+				Jarry.num[i - 1].role = 3;		
 				Jarry.num[i].x = old_snake_x;
 				Jarry.num[i].y = old_snake_y;
 
-				flag = 1;							//改变标志位使 一次循坏只更改一次尾�?
-
+				flag = 1;							
 			}
 		}
 
@@ -304,7 +304,7 @@ void setSnakePos()							//蛇移动的原理
 				printf(" ");
 				old_snake_x = Jarry.num[0].x;
 				old_snake_y = Jarry.num[0].y;
-				Jarry.num[0].x += 2;			//移动蛇头
+				Jarry.num[0].x += 2;		
 			}
 			if (Jarry.num[i].role == 3 && flag == 0)
 			{
@@ -317,12 +317,12 @@ void setSnakePos()							//蛇移动的原理
 				{
 					Jarry.num[Jarry.length - 1].role = 3;
 				}
-				Jarry.num[i - 1].role = 3;			//比如 1 2 3 4        将蛇头位置变�?然后将最后一位的节点补上去实现移�?1 4 2 3
+				Jarry.num[i - 1].role = 3;			//
 
 				Jarry.num[i].x = old_snake_x;
 				Jarry.num[i].y = old_snake_y;
 
-				flag = 1;							//改变标志位使 一次循坏只更改一次尾�?
+				flag = 1;					
 
 			}
 		}
@@ -330,7 +330,7 @@ void setSnakePos()							//蛇移动的原理
 	}
 }
 
-void moveByUser()				//通过用户的输入来控制游戏
+void moveByUser()				//閫氳繃鐢ㄦ埛鐨勮緭鍏ユ潵鎺у埗娓告垙
 {
 	char ch = 'm';
 	if (kbhit())
@@ -367,7 +367,7 @@ void moveByUser()				//通过用户的输入来控制游戏
 
 	}
 }
-void startUp()			//��ʼ������
+void startUp()			//初始化数据
 {
 	srand(unsigned(time(NULL)));
 	moveDirection = a[rand() % 4];
@@ -390,7 +390,7 @@ void startUp()			//��ʼ������
 
 }
 
-void showSnake()							//����
+void showSnake()							//画蛇
 {
 	for (int i = 0; i < Jarry.length; i++)
 	{
@@ -399,22 +399,27 @@ void showSnake()							//����
 
 			setcoord(Jarry.num[i].x, Jarry.num[i].y);
 			SetColor(rand() % 6 + 1, 0);
-			printf("��");
+			printf("★");
 		}
 		else
 		{
 			setcoord(Jarry.num[i].x, Jarry.num[i].y);
 			SetColor(rand() % 6 + 1, 0);
-			printf("��");
+			printf("○");
 		}
 	}
 }
-void snakeState()					//�ߵ�״̬ ����˵�Ե�ʳ�� ײǽ ҧ���Լ�
+void snakeState()					//蛇的状态 比如说吃到食物 撞墙 咬到自己
 {
 	int i = 0;
-	int isfind = 0;					//�Ƿ��ҵ�β��
-	if (food.food_X == Jarry.num[i].x && food.food_Y == Jarry.num[i].y)			//Jarrry �Ե�ʳ��
+	int isfind = 0;					//是否找到尾部
+	if (food.food_X == Jarry.num[i].x && food.food_Y == Jarry.num[i].y)			//Jarrry 吃到食物
 	{
+		
+		mciSendString(_T("close mymusic2"), NULL, 0, NULL);
+		mciSendString(_T("close mymusic"), NULL, 0, NULL);
+		mciSendString(_T("open 1.mp3 alias mymusic"), NULL, 0, NULL);
+		mciSendString(_T("play mymusic"), NULL, 0, NULL);
 		Jarry.length++;
 		for (i = 0; i < Jarry.length - 1; i++)
 		{
@@ -423,19 +428,21 @@ void snakeState()					//�ߵ�״̬ ����˵�Ե�ʳ�� ײǽ ҧ���Լ�
 
 				Jarry.num[Jarry.length - 1].x = Jarry.num[i].x;
 				Jarry.num[Jarry.length - 1].y = Jarry.num[i].y;  
-				Jarry.num[i].role = 2;								//β���������
-				Jarry.num[Jarry.length - 1].role = 3;				//�µ�β������
+				Jarry.num[i].role = 2;								//尾部变成身体
+				Jarry.num[Jarry.length - 1].role = 3;				//新的尾部产生
 
 				isfind = 1;
 				showSnake();
+
+
 			}
 			if (isfind)
-				break;		//�ҵ�������
+				break;		//找到后跳出
 
 		}
 	}
-	if (Jarry.num[0].y == 0 || Jarry.num[0].y == 29 || Jarry.num[0].x == -1 || (Jarry.num[0].x == -1 && moveDirection != 4) ||
-		Jarry.num[0].x > 47 || (Jarry.num[0].x == 47 && moveDirection != 6))			//Jarry �ײǽ
+	if (Jarry.num[0].y == 0 || Jarry.num[0].y == 29 || Jarry.num[0].x == -1 || (Jarry.num[0].x == 1 && moveDirection != 4) ||
+		Jarry.num[0].x > 47 || (Jarry.num[0].x == 47 && moveDirection != 6))			//Jarry 
 	{
 		setcoord(0, 0);
 		gameOver();
@@ -449,6 +456,7 @@ void snakeState()					//�ߵ�״̬ ����˵�Ե�ʳ�� ײǽ ҧ���Լ�
 			exit(0);
 		}
 	}
+
 }
 void gameOver()
 {
@@ -463,7 +471,7 @@ void gameOver()
 	{
 		setcoord(14, 13);
 		SetColor(rand() % 10 + 6, 0);
-		printf("��Ϸ����  ��������˳�");
+		printf("游戏结束  按任意键退出");
 		Sleep(500);
 		
 		fflush(stdin);
@@ -480,10 +488,15 @@ void gameStart()
 {
 	int i = 0, j = 0, k = 0, m = 0;
 	int flag = 0;
+	mciSendString(_T("close mymusic3"), NULL, 0, NULL);
+	mciSendString(_T("open 3.mp3 alias mymusic3"), NULL, 0, NULL);
+	mciSendString(_T("play mymusic3"), NULL, 0, NULL);
 	for (i = 0; i < 30; i++)
 	{
+
 		if (kbhit())
 		{
+			getch();
 			break;
 		}
 		for (j = 0; j < 49; j += 2)
@@ -494,13 +507,13 @@ void gameStart()
 
 			{
 				flag = 1;
-				printf("��");
+				printf("●");
 			}
 			else
 			{
 
 				flag = 0;
-				printf("��");
+				printf("★");
 			}
 			Sleep(2);
 		}
@@ -515,6 +528,7 @@ void gameStart()
 	{
 		if (kbhit())
 		{
+			getch();
 			break;
 		}
 		if (flag == 0)
@@ -556,6 +570,7 @@ void gameStart()
 		}
 
 	}
+
 	for (i = 0; i < 30; i++)		
 		for (j = 0; j < 49; j += 1)
 		{
@@ -564,52 +579,58 @@ void gameStart()
 
 	setcoord(18, 14);
 	SetColor(10, 0);
-	printf("��ӭ����̰����");
+
+	printf("欢迎来到贪吃蛇");
 	setcoord(30, 16);
 	printf("-------by DZA");
 	Sleep(1000);
 	setcoord(12, 14);
-	printf(" W A S D ���߷�������Ʒ���");
+	printf(" W A S D 或者方向键控制方向");
 	setcoord(15, 15);
-	printf("P ����ͣ  P�� ����");
+	printf("P 键暂停  P键 继续");
 
 
-
+	fflush(stdin);
 
 }
 
 int main()
 {
+	SetConsoleTitle(_T("Snake"));   //改标题
 	int speed0 = 30;
 	startUp();
 	system("mode con cols=50 lines=30");		// x = 50 y = 30
 	gameStart();
 	Wel();
+	mciSendString(_T("close mymusic3"), NULL, 0, NULL);
 	system("mode con cols=50 lines=34");		
 
 	while (1)
 	{	
 		showBorder();
-		moveByUser();			//�û�����Ӱ����Ϸ
-		setSnakePos();			//�ߵ�λ��
+		moveByUser();			//用户输入影响游戏
+		setSnakePos();			//蛇的位置
 
 
-		snakeState();			//�ߵ�״̬
+		snakeState();			//蛇的状态
 		showSnake();
 
 
 
-		foodState();			//ʳ���״̬
-		showFood();				//��ʳ��
-		if (speed0 > 20)	//�����ٶ�
+		foodState();			//食物的状态
+		showFood();				//画食物
+		if (speed0 > 20)	//控制速度
 			speed0 = speed - 2 * Jarry.length;
-		Sleep(speed0);			//�ӻ����� �������ٶ�
-
+		Sleep(speed0);			//延缓画面 来控制速度
+//		mciSendString(_T("close mymusic2"), NULL, 0, NULL);
+		mciSendString(_T("open 2.mp3 alias mymusic2"), NULL, 0, NULL);
+		mciSendString(_T("play mymusic2 repeat"), NULL, 0, NULL);
 
 		setcoord(0, 32);			
 		printf("     ");
 		SetColor(10, 0);
-		printf("����  :  %d       �ٶ� : %d", score-1, (500 - speed + 20 * Jarry.length - 320) / 20);
+		printf("分数  :  %d       速度 : %d", score-1, (500 - speed + 20 * Jarry.length - 320) / 20);
+	//	mciSendString(_T("close mymusic"), NULL, 0, NULL);
 	}
 
 
